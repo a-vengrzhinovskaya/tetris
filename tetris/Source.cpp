@@ -3,9 +3,9 @@
 
 using namespace sf;
 
-const int fieldLenght = 20, fieldWidth = 10;
+const int fieldLenght = 20, fieldWidth = 10, tileSize = 18;
 
-int field[fieldLenght][fieldWidth];
+bool field[fieldLenght][fieldWidth];
 
 struct tilePosition {
     int x, y;
@@ -21,44 +21,19 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-/*class Figure {
-
-private:
-    tilePosition tileCoords[4];
-    int type;
-
-public:
-    Figure(int numberOfFigure) {
-
-        type = numberOfFigure;
-    }
-
-    void figureBuild(tilePosition tileCoords[4]) {
-
-        for (int numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-            tileCoords[numberOfTile].x = localTileCoords[type][numberOfTile] % 2;
-            tileCoords[numberOfTile].y = localTileCoords[type][numberOfTile] / 2;
-
-        }
-    }
-};
-
-Figure I(0), S(1), Z(2), T(3), L(4), J(5), O(6);*/
-
 int main() {
 
     srand(time(NULL));
 
-    RenderWindow window(VideoMode(320, 480), "Tetris");
+    RenderWindow window(VideoMode(fieldWidth * tileSize, fieldLenght * tileSize), "Tetris");
 
     window.setVerticalSyncEnabled(true);
 
     Texture tTiles, tBackground;
-    tTiles.loadFromFile("C:/Users/aveng/source/repos/tetris/images/tiles.png");
-    tBackground.loadFromFile("C:/Users/aveng/source/repos/tetris/images/background.png");
+    tTiles.loadFromFile("C:/Users/Анжелика/source/repos/Tetris/Tetris/images/tiles.png");
+    tBackground.loadFromFile("C:/Users/Анжелика/source/repos/Tetris/Tetris/images/tiles.png");
 
-    Sprite tiles(tTiles), background(tBackground);
+    Sprite tile(tTiles), background(tBackground);
 
     int figureType, numberOfTile;
 
@@ -73,19 +48,20 @@ int main() {
             }
         }
 
-        figureType = rand() % 7;
+        //figureType = rand() % 7;
+        figureType = 2;
         for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
             tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
             tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
         }
 
-        window.clear();
+        window.clear(Color::White);
 
         for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-            tiles.setTextureRect(IntRect(0, 0, 5, 5));
-            tiles.setPosition(tileCoords[numberOfTile].x, tileCoords[numberOfTile].y);
-            window.draw(tiles);
+            tile.setTextureRect(IntRect(0, 0, tileSize, tileSize));
+            tile.setPosition(tileCoords[numberOfTile].x + 10, tileCoords[numberOfTile].y + 10);
+            window.draw(tile);
         }
 
         window.display();
