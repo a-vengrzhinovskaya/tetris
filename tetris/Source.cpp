@@ -9,7 +9,7 @@ int field[fieldLenght][fieldWidth];
 
 struct tilePosition {
     int x, y;
-};
+} tileCoords[4];
 
 int localTileCoords[7][4] = {
     1,3,5,7,
@@ -21,14 +21,15 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-class Figure {
+/*class Figure {
 
 private:
     tilePosition tileCoords[4];
-    int type, tiles[4];
+    int type;
 
 public:
     Figure(int numberOfFigure) {
+
         type = numberOfFigure;
     }
 
@@ -43,7 +44,7 @@ public:
     }
 };
 
-Figure I(0), S(1), Z(2), T(3), L(4), J(5), O(6);
+Figure I(0), S(1), Z(2), T(3), L(4), J(5), O(6);*/
 
 int main() {
 
@@ -59,7 +60,7 @@ int main() {
 
     Sprite tiles(tTiles), background(tBackground);
 
-    int figureType;
+    int figureType, numberOfTile;
 
     while (window.isOpen()) {
 
@@ -73,11 +74,19 @@ int main() {
         }
 
         figureType = rand() % 7;
+        for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
+            tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
+            tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
+        }
 
         window.clear();
 
-        
+        for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+            tiles.setTextureRect(IntRect(0, 0, 5, 5));
+            tiles.setPosition(tileCoords[numberOfTile].x, tileCoords[numberOfTile].y);
+            window.draw(tiles);
+        }
 
         window.display();
     }
