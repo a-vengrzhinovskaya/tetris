@@ -21,6 +21,18 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
+/*void rotation(int figureType, int* rotationState, tilePosition[4]) {
+    switch (figureType) {
+        case 0: {
+            switch (*rotationState) {
+                case 0: {
+
+                }
+            }
+        }
+    }
+}*/
+
 int main() {
 
     srand(time(NULL));
@@ -46,10 +58,21 @@ int main() {
             if (event.type == Event::Closed) {
                 window.close();
             }
+
+            /*if (event.type == Event::KeyPressed) {
+                if (event.key.code == Keyboard::Up) {
+                    rotation();
+                }
+                else if (event.key.code == Keyboard::Right) {
+                    
+                }
+                else if (event.key.code == Keyboard::Left) {
+                    
+                }
+            }*/
         }
 
-        //figureType = rand() % 7;
-        figureType = 2;
+        figureType = rand() % 7;
         for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
             tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
@@ -59,8 +82,8 @@ int main() {
         window.clear(Color::White);
 
         for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-            tile.setTextureRect(IntRect(0, 0, tileSize, tileSize));
-            tile.setPosition(tileCoords[numberOfTile].x + 10, tileCoords[numberOfTile].y + 10);
+            tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
+            tile.setPosition(tileCoords[numberOfTile].x * tileSize, tileCoords[numberOfTile].y * tileSize);
             window.draw(tile);
         }
 
