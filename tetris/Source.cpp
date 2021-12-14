@@ -21,17 +21,24 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-/*void rotation(int figureType, int* rotationState, tilePosition[4]) {
+void rotation(int figureType, int* rotationState, tilePosition coords[4]) {
+    int numberOfTile;
     switch (figureType) {
         case 0: {
             switch (*rotationState) {
                 case 0: {
-
+                    coords[1].x = coords[0].x - tileSize;
+                    coords[2].x = coords[0].x + tileSize;
+                    coords[3].x = coords[0].x + tileSize * 2;
+                    for (numberOfTile = 1; numberOfTile < 4; ++numberOfTile) {
+                        coords[numberOfTile].y = coords[0].y;
+                    }
+                    break;
                 }
             }
         }
     }
-}*/
+}
 
 int main() {
 
@@ -47,7 +54,7 @@ int main() {
 
     Sprite tile(tTiles), background(tBackground);
 
-    int figureType, numberOfTile, direction = 0;
+    int figureType, numberOfTile, direction = 0, rotationState = -1;
 
     while (window.isOpen()) {
 
@@ -60,13 +67,15 @@ int main() {
             }
 
             if (event.type == Event::KeyPressed) {
-                /*if (event.key.code == Keyboard::Up) {
-                    rotation();
-                }*/
-                if (event.key.code == Keyboard::Right) {
+                if (event.key.code == Keyboard::Up) {
+                    ++rotationState;
+                    rotation(figureType, &rotationState, tileCoords);
+                    if (rotationState >= 4) {
+                        rotationState = -1;
+                    }
+                } else if (event.key.code == Keyboard::Right) {
                     direction = 1;
-                }
-                else if (event.key.code == Keyboard::Left) {
+                } else if (event.key.code == Keyboard::Left) {
                     direction = -1;
                 }
             }
@@ -74,7 +83,8 @@ int main() {
 
         if (tileCoords[0].y == 0) {
 
-            figureType = rand() % 7;
+            //figureType = rand() % 7;
+            figureType = 0;
 
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
