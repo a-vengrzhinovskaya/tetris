@@ -3,7 +3,7 @@
 
 using namespace sf;
 
-const int fieldLenght = 20, fieldWidth = 10, tileSize = 18;
+const int fieldLenght = 20, fieldWidth = 10, tileSize = 32;
 
 int field[fieldLenght][fieldWidth];
 
@@ -85,7 +85,7 @@ void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
     }
 }
 
-void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], int field[fieldLenght][fieldWidth], int figure, bool *figureIsPlaced) {
+void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], int field[fieldLenght][fieldWidth], int figure, bool* figureIsPlaced) {
 
     int numberOfTile;
 
@@ -104,6 +104,40 @@ void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], i
     }
 }
 
+void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* gameOver) {
+
+    int numberOfLine, numberOfTile, lineIndex, tileIndex, filledTilesCount = 0;
+
+    for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+
+        for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
+
+            if (field[numberOfLine][numberOfTile] != 7) {
+                ++filledTilesCount;
+            }
+        }
+
+        if (filledTilesCount == fieldWidth) {
+            *lineIsFinished = true;
+
+            for (lineIndex = numberOfLine; lineIndex >= 0; --lineIndex) {
+
+                for (tileIndex = 0; tileIndex < fieldWidth; ++tileIndex) {
+
+                    if (numberOfLine == 0) {
+                        *gameOver = true;
+
+                        return;
+                    }
+                    else {
+                        field[lineIndex][tileIndex] = field[lineIndex - 1][tileIndex];
+                    }
+                }
+            }
+        }
+    }
+}
+
 int main() {
 
     srand(time(0));
@@ -111,18 +145,19 @@ int main() {
     RenderWindow window(VideoMode(fieldWidth * tileSize, fieldLenght * tileSize), "Tetris");
     window.setVerticalSyncEnabled(true);
     
-    Texture tTiles, tBackground;
+    Texture tTiles, tBackground, tGameOver;
     tTiles.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
     tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
+    tGameOver.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/gameover.png");
 
-    Sprite tile(tTiles), background(tBackground);
+    Sprite tile(tTiles), background(tBackground), gameIsOver(tGameOver);
 
     int figureType = 0, numberOfTile, numberOfLine, direction = 0, rotationState = 0;
 
     Clock clock;
-    float delay = 0.5, time, timer = 0;
+    float delay = 0.5, tempDelay, time, timer = 0;
 
-    bool figureIsPlaced = false;
+    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false;
 
     fieldFill(field);
 
@@ -146,6 +181,8 @@ int main() {
             clock.restart();
             timer += time;
 
+            tempDelay = delay;
+
             Event event;
             while (window.pollEvent(event)) {
                 if (event.type == Event::Closed) {
@@ -162,12 +199,11 @@ int main() {
                     }
                     else if (event.key.code == Keyboard::Right) {
                         direction = 1;
-                    }
-                    else if (event.key.code == Keyboard::Left) {
+                    } else if (event.key.code == Keyboard::Left) {
                         direction = -1;
-                    }/*else if (event.key.code == Keyboard::Down) {
-                        delay =
-                    }*/
+                    } else if (event.key.code == Keyboard::Down) {
+                        delay = 0.05;
+                    }
                 }
             }
 
@@ -190,9 +226,19 @@ int main() {
                 }
             }
 
+            delay = tempDelay;
+
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
 
-            window.clear(Color::White);
+            deleteLine(field, &lineIsFinished, &gameOver);
+
+            window.clear(Color::Black);
+
+            if (gameOver == true) {
+                gameIsOver.setTextureRect(IntRect(0, 0, fieldWidth * tileSize, fieldWidth * tileSize));
+                gameIsOver.setPosition(0, fieldLenght / 2 * fieldWidth * tileSize);
+                window.draw(gameIsOver);
+            }
 
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
@@ -224,9 +270,14 @@ int main() {
             window.display();
         }
 
-        delay -= 0.03;
-
-        figureIsPlaced = false;
+        if (delay >= 0.2 && lineIsFinished == true) {
+                delay -= 0.03;
         }
+
+        if (gameOver != true) {
+            figureIsPlaced = false;
+            lineIsFinished = false;
+        }
+    }
     return 0;
 }
