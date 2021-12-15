@@ -24,6 +24,95 @@ struct tilePosition {
     int x, y;
 } tileCoords[4], previousCoords[4];
 
+void startTileCoords(tilePosition tileCoords[4], int figureType) {
+    switch (figureType) {
+        case 0: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 0;
+            tileCoords[1].x = 1;
+            tileCoords[1].y = 0;
+            tileCoords[2].x = 2;
+            tileCoords[2].y = 0;
+            tileCoords[3].x = 3;
+            tileCoords[3].y = 0;
+
+            break;
+        }
+        case 1: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 0;
+            tileCoords[1].x = 0;
+            tileCoords[1].y = 1;
+            tileCoords[2].x = 1;
+            tileCoords[2].y = 1;
+            tileCoords[3].x = 2;
+            tileCoords[3].y = 1;
+
+            break;
+        }
+        case 2: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 1;
+            tileCoords[1].x = 1;
+            tileCoords[1].y = 1;
+            tileCoords[2].x = 2;
+            tileCoords[2].y = 1;
+            tileCoords[3].x = 2;
+            tileCoords[3].y = 0;
+
+            break;
+        }
+        case 3: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 0;
+            tileCoords[1].x = 0;
+            tileCoords[1].y = 1;
+            tileCoords[2].x = 1;
+            tileCoords[2].y = 0;
+            tileCoords[3].x = 1;
+            tileCoords[3].y = 1;
+
+            break;
+        }
+        case 4: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 1;
+            tileCoords[1].x = 1;
+            tileCoords[1].y = 1;
+            tileCoords[2].x = 1;
+            tileCoords[2].y = 0;
+            tileCoords[3].x = 2;
+            tileCoords[3].y = 0;
+
+            break;
+        }
+        case 5: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 1;
+            tileCoords[1].x = 1;
+            tileCoords[1].y = 1;
+            tileCoords[2].x = 1;
+            tileCoords[2].y = 0;
+            tileCoords[3].x = 2;
+            tileCoords[3].y = 1;
+
+            break;
+        }
+        case 6: {
+            tileCoords[0].x = 0;
+            tileCoords[0].y = 0;
+            tileCoords[1].x = 1;
+            tileCoords[1].y = 0;
+            tileCoords[2].x = 1;
+            tileCoords[2].y = 1;
+            tileCoords[3].x = 2;
+            tileCoords[3].y = 1;
+
+            break;
+        }
+    }
+}
+
 int localTileCoords[7][4] = {
     1,3,5,7,
     2,4,5,7,
@@ -41,7 +130,7 @@ void rotation(tilePosition currentCoords[4]) {
     int numberOfTile, x, y;
 
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-        
+
         x = currentCoords[numberOfTile].y - axis.y;
         y = currentCoords[numberOfTile].x - axis.x;
 
@@ -127,7 +216,7 @@ int main() {
 
     RenderWindow window(VideoMode(fieldWidth * tileSize, fieldLenght * tileSize), "Tetris");
     window.setVerticalSyncEnabled(true);
-    
+
     Texture tTiles, tBackground, tGameOver;
     tTiles.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
     tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
@@ -140,21 +229,21 @@ int main() {
     Clock clock;
     float delay = 0.5, tempDelay, time, timer = 0;
 
-    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotate = false;
+    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotate = false, nextFigure = true;
 
     fieldFill(field);
 
     while (window.isOpen()) {
+
         while (figureIsPlaced == false) {
-            if (tileCoords[0].y == 0) {
+
+            if (nextFigure == true) {
+
+                nextFigure = false;
 
                 figureType = rand() % 7;
 
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-                    tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
-                    tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
-                }
+                startTileCoords(tileCoords, figureType);
             }
 
             time = clock.getElapsedTime().asSeconds();
@@ -176,9 +265,11 @@ int main() {
                     }
                     else if (event.key.code == Keyboard::Right) {
                         direction = 1;
-                    } else if (event.key.code == Keyboard::Left) {
+                    }
+                    else if (event.key.code == Keyboard::Left) {
                         direction = -1;
-                    } else if (event.key.code == Keyboard::Down) {
+                    }
+                    else if (event.key.code == Keyboard::Down) {
                         delay = 0.05;
                     }
                 }
@@ -248,14 +339,6 @@ int main() {
                 }
             }
 
-            if (figureIsPlaced == true) {
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-                    tileCoords[numberOfTile].x = 0;
-                    tileCoords[numberOfTile].y = 0;
-                }
-            }
-
             if (gameOver == true) {
                 gameIsOver.setTextureRect(IntRect(0, 0, fieldWidth * tileSize, fieldWidth * tileSize));
                 gameIsOver.setPosition(0, fieldLenght / 2 * fieldWidth * tileSize);
@@ -266,11 +349,12 @@ int main() {
         }
 
         if (delay >= 0.2 && lineIsFinished == true) {
-                delay -= 0.03;
+            delay -= 0.03;
         }
 
         figureIsPlaced = false;
         lineIsFinished = false;
+        nextFigure = true;
     }
     return 0;
 }
