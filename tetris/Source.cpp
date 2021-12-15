@@ -4,11 +4,23 @@ using namespace sf;
 
 const int fieldLenght = 20, fieldWidth = 10, tileSize = 18;
 
-int field[fieldLenght][fieldWidth] = { 8 };
+int field[fieldLenght][fieldWidth];
+
+void fieldFill(int field[fieldLenght][fieldWidth]) {
+
+    int numberOfLine, numberOfRow;
+
+    for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+
+        for (numberOfRow = 0; numberOfRow < fieldWidth; ++numberOfRow) {
+
+            field[numberOfLine][numberOfRow] = 7;
+        }
+    }
+}
 
 struct tilePosition {
-    int x;
-    float y;
+    int x, y;
 } tileCoords[4], defaultCoords[4];
 
 int localTileCoords[7][4] = {
@@ -69,9 +81,13 @@ int main() {
     Sprite tile(tTiles), background(tBackground);
 
     int figureType = 0, numberOfTile, numberOfLine, direction = 0, rotationState = 0;
-    float delay = 0.05;
+
+    Clock clock;
+    float delay = 0.5, time, timer = 0;
 
     bool figureIsPlaced = false;
+
+    fieldFill(field);
 
     while (window.isOpen()) {
         while (figureIsPlaced == false) {
@@ -88,6 +104,10 @@ int main() {
                     defaultCoords[numberOfTile].y = tileCoords[numberOfTile].y;
                 }
             }
+
+            time = clock.getElapsedTime().asSeconds();
+            clock.restart();
+            timer += time;
 
             Event event;
             while (window.pollEvent(event)) {
@@ -117,14 +137,21 @@ int main() {
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
                 tileCoords[numberOfTile].x += direction;
-                tileCoords[numberOfTile].y += delay;
             }
 
             direction = 0;
 
+            if (timer >= delay) {
+                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
+                    tileCoords[numberOfTile].y += 1;
+                    timer = 0;
+                }
+            }
+
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
-                if (tileCoords[numberOfTile].y == fieldLenght /* || field[tileCoords[numberOfTile].y + 1][tileCoords[numberOfTile].x] != 8*/) {
+                if (tileCoords[numberOfTile].y >= fieldLenght - 1 /* || field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] != 8*/) {
                     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
                         field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] = figureType;
@@ -145,17 +172,17 @@ int main() {
                 window.draw(tile);
             }
 
-            /*for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+            for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
 
                 for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
 
-                    if (field[numberOfLine][numberOfTile] != 8) {
-                        tile.setTextureRect(IntRect(figureType * field[numberOfLine][numberOfTile], 0, tileSize, tileSize));
+                    if (field[numberOfLine][numberOfTile] != 7) {
+                        tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
                         tile.setPosition(numberOfLine * tileSize, numberOfTile * tileSize);
                         window.draw(tile);
                     }
                 }
-            }*/
+            }
 
             if (figureIsPlaced == true) {
                 for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
@@ -168,7 +195,7 @@ int main() {
             window.display();
         }
 
-        delay += 0.01;
+        delay -= 0.03;
 
         figureIsPlaced = false;
         }
