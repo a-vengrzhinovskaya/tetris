@@ -73,7 +73,8 @@ void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
     int numberOfTile;
 
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth) {
+
+        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
                 currentCoords[numberOfTile] = previousCoords[numberOfTile];
@@ -89,6 +90,7 @@ void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], i
     int numberOfTile;
 
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
         if (currentCoords[numberOfTile].y >= fieldLenght || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
@@ -189,20 +191,6 @@ int main() {
             }
 
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
-
-            /*for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-                if (tileCoords[numberOfTile].y >= fieldLenght || field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] != 8) {
-                    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-                        field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] = figureType;
-                    }
-
-                    figureIsPlaced = true;
-
-                    break;
-                }
-            }*/
 
             window.clear(Color::White);
 
