@@ -22,7 +22,7 @@ void fieldFill(int field[fieldLenght][fieldWidth]) {
 
 struct tilePosition {
     int x, y;
-} tileCoords[4], defaultCoords[4], previousCoords[4];
+} tileCoords[4], previousCoords[4];
 
 int localTileCoords[7][4] = {
     1,3,5,7,
@@ -34,37 +34,19 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-void rotation(int figureType, int* rotationState, tilePosition currentCoords[4], tilePosition defaultCoords[4]) {
+void rotation(tilePosition currentCoords[4]) {
 
-    int numberOfTile;
+    tilePosition axis = currentCoords[1];
 
-    switch (figureType) {
-        case 0: {
-            switch (*rotationState) {
-                case 0: {
-                    currentCoords[1].x = defaultCoords[0].x - tileSize;
-                    currentCoords[2].x = defaultCoords[0].x + tileSize;
-                    currentCoords[3].x = defaultCoords[0].x + tileSize * 2;
-                    for (numberOfTile = 1; numberOfTile < 4; ++numberOfTile) {
-                        currentCoords[numberOfTile].y = defaultCoords[0].y;
-                    }
-                    
-                    ++(*rotationState);
+    int numberOfTile, x, y;
 
-                    break;
-                }
-                case 1: {
-                    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-                        currentCoords[numberOfTile].x = defaultCoords[numberOfTile].x;
-                        currentCoords[numberOfTile].y = defaultCoords[numberOfTile].y;
-                    }
+    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+        
+        x = currentCoords[numberOfTile].y - axis.y;
+        y = currentCoords[numberOfTile].x - axis.x;
 
-                    *rotationState = 0;
-                    
-                    break;
-                }
-            }
-        }
+        currentCoords[numberOfTile].x = axis.x - x;
+        currentCoords[numberOfTile].y = axis.y - y;
     }
 }
 
@@ -113,6 +95,12 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
 
             if (field[numberOfLine][numberOfTile] != 7) {
+                if (numberOfLine == 0) {
+                    *gameOver = true;
+
+                    return;
+                }
+
                 ++filledTilesCount;
             }
         }
@@ -120,21 +108,16 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
         if (filledTilesCount == fieldWidth) {
             *lineIsFinished = true;
 
-            for (lineIndex = numberOfLine; lineIndex >= 0; --lineIndex) {
+            for (lineIndex = numberOfLine; lineIndex > 0; --lineIndex) {
 
                 for (tileIndex = 0; tileIndex < fieldWidth; ++tileIndex) {
 
-                    if (numberOfLine == 0) {
-                        *gameOver = true;
-
-                        return;
-                    }
-                    else {
-                        field[lineIndex][tileIndex] = field[lineIndex - 1][tileIndex];
-                    }
+                    field[lineIndex][tileIndex] = field[lineIndex - 1][tileIndex];
                 }
             }
         }
+
+        filledTilesCount = 0;
     }
 }
 
@@ -152,12 +135,12 @@ int main() {
 
     Sprite tile(tTiles), background(tBackground), gameIsOver(tGameOver);
 
-    int figureType = 0, numberOfTile, numberOfLine, direction = 0, rotationState = 0;
+    int figureType = 0, numberOfTile, numberOfLine, direction = 0;
 
     Clock clock;
     float delay = 0.5, tempDelay, time, timer = 0;
 
-    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false;
+    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotate = false;
 
     fieldFill(field);
 
@@ -171,9 +154,6 @@ int main() {
 
                     tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
                     tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
-
-                    defaultCoords[numberOfTile].x = tileCoords[numberOfTile].x;
-                    defaultCoords[numberOfTile].y = tileCoords[numberOfTile].y;
                 }
             }
 
@@ -191,11 +171,8 @@ int main() {
 
                 if (event.type == Event::KeyPressed) {
                     if (event.key.code == Keyboard::Up) {
-                        //++rotationState;
-                        rotation(figureType, &rotationState, tileCoords, defaultCoords);
-                        /*if (rotationState >= 4) {
-                            rotationState = -1;
-                        }*/
+                        //rotation(tileCoords);
+                        rotate = true;
                     }
                     else if (event.key.code == Keyboard::Right) {
                         direction = 1;
@@ -206,6 +183,24 @@ int main() {
                     }
                 }
             }
+
+            if (rotate == true) {
+
+                tilePosition axis = tileCoords[1];
+
+                int x, y;
+
+                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
+                    x = tileCoords[numberOfTile].y - axis.y;
+                    y = tileCoords[numberOfTile].x - axis.x;
+
+                    tileCoords[numberOfTile].x = axis.x - x;
+                    tileCoords[numberOfTile].y = axis.y - y;
+                }
+            }
+
+            rotate = false;
 
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
@@ -274,10 +269,10 @@ int main() {
                 delay -= 0.03;
         }
 
-        if (gameOver != true) {
+        //if (gameOver != true) {
             figureIsPlaced = false;
             lineIsFinished = false;
-        }
+        //}
     }
     return 0;
 }
