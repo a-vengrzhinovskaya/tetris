@@ -11,9 +11,7 @@ void fieldFill(int field[fieldLenght][fieldWidth]) {
     int numberOfLine, numberOfRow;
 
     for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
-
         for (numberOfRow = 0; numberOfRow < fieldWidth; ++numberOfRow) {
-
             field[numberOfLine][numberOfRow] = 7;
         }
     }
@@ -23,7 +21,7 @@ struct tilePosition {
 
     int x, y;
 
-} tileCoords[4], previousCoords[4];
+} tileCoords[4], previousCoords[4], axis;
 
 int localTileCoords[7][4] = {
     1,3,5,7,
@@ -35,31 +33,13 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-void rotation(tilePosition currentCoords[4]) {
-
-    tilePosition axis = currentCoords[1];
-
-    int numberOfTile, x, y;
-
-    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-        x = currentCoords[numberOfTile].y - axis.y;
-        y = currentCoords[numberOfTile].x - axis.x;
-
-        currentCoords[numberOfTile].x = axis.x - x;
-        currentCoords[numberOfTile].y = axis.y - y;
-    }
-}
-
 void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
 
     int numberOfTile;
 
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
         if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
                 currentCoords[numberOfTile] = previousCoords[numberOfTile];
             }
             break;
@@ -72,10 +52,8 @@ void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], i
     int numberOfTile;
     
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-    
         if (currentCoords[numberOfTile].y >= fieldLenght || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-                
+            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {  
                 field[currentCoords[numberOfTile].y - 1][currentCoords[numberOfTile].x] = figure;
             }
             
@@ -91,7 +69,6 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
     int numberOfLine, numberOfTile, lineIndex, tileIndex, filledTilesCount = 0;
     
     for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
-        
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
             if (field[numberOfLine][numberOfTile] != 7) {
                 if (numberOfLine == 0 && field[fieldWidth - 1][numberOfTile] != 7) {
@@ -105,9 +82,7 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
         if (filledTilesCount == fieldWidth) {
             *lineIsFinished = true;
             for (lineIndex = numberOfLine; lineIndex > 0; --lineIndex) {
-
                 for (tileIndex = 0; tileIndex < fieldWidth; ++tileIndex) {
-
                     field[lineIndex][tileIndex] = field[lineIndex - 1][tileIndex];
                 }
             }
@@ -128,13 +103,13 @@ int main() {
     tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
     Sprite tile(tTiles), background(tBackground);
 
-    int figureType = 0, numberOfTile, numberOfLine, direction = 0;
+    int figureType = 0, numberOfTile, numberOfLine, direction = 0, x, y;
 
     Clock clock;
 
     float delay = 0.5, tempDelay, time, timer = 0;
 
-    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotate = false, nextFigure = true;
+    bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotation = false, nextFigure = true;
 
     fieldFill(field);
 
@@ -156,6 +131,7 @@ int main() {
             time = clock.getElapsedTime().asSeconds();
             clock.restart();
             timer += time;
+
             tempDelay = delay;
 
             Event event;
@@ -165,7 +141,7 @@ int main() {
                 }
                 if (event.type == Event::KeyPressed) {
                     if (event.key.code == Keyboard::Up) {
-                        rotation(tileCoords);
+                        rotation = true;
                     }
                     else if (event.key.code == Keyboard::Right) {
                         direction = 1;
@@ -174,23 +150,10 @@ int main() {
                         direction = -1;
                     }
                     else if (event.key.code == Keyboard::Down) {
-                        delay = 0.05;
+                        delay = 0.03;
                     }
                 }
             }
-
-            /*if (rotate == true) {
-                tilePosition axis = tileCoords[1];
-                int x, y;
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
-                    x = tileCoords[numberOfTile].y - axis.y;
-                    y = tileCoords[numberOfTile].x - axis.x;
-                    tileCoords[numberOfTile].x = axis.x - x;
-                    tileCoords[numberOfTile].y = axis.y - y;
-                }
-            }
-            rotate = false;*/
 
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
                 previousCoords[numberOfTile] = tileCoords[numberOfTile];
@@ -199,6 +162,20 @@ int main() {
             collisionX(tileCoords, previousCoords);
             direction = 0;
 
+            if (rotation == true) {
+                axis = tileCoords[1];
+                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+                    x = tileCoords[numberOfTile].y - axis.y;
+                    y = tileCoords[numberOfTile].x - axis.x;
+
+                    tileCoords[numberOfTile].x = axis.x - x;
+                    tileCoords[numberOfTile].y = axis.y + y;
+                }
+                collisionX(tileCoords, previousCoords);
+
+            }
+            rotation = false;
+
             if (timer >= delay) {
                 for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
                     tileCoords[numberOfTile].y += 1;
@@ -206,20 +183,18 @@ int main() {
                 }
             }
             delay = tempDelay;
+
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
             deleteLine(field, &lineIsFinished, &gameOver);
 
             window.clear(Color::White);
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
                 tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
                 tile.setPosition(tileCoords[numberOfTile].x * tileSize, tileCoords[numberOfTile].y * tileSize);
                 window.draw(tile);
             }
             for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
-
                 for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
-
                     if (field[numberOfLine][numberOfTile] != 7) {
                         tile.setTextureRect(IntRect(field[numberOfLine][numberOfTile] * tileSize, 0, tileSize, tileSize));
                         tile.setPosition(numberOfTile * tileSize, numberOfLine * tileSize);
@@ -229,7 +204,6 @@ int main() {
             }
             if (figureIsPlaced == true) {
                 for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-
                     tileCoords[numberOfTile].x = 0;
                     tileCoords[numberOfTile].y = 0;
                 }
@@ -239,7 +213,7 @@ int main() {
         }
 
         if (delay >= 0.2 && lineIsFinished == true) {
-            delay -= 0.03;
+            delay -= 0.06;
         }
 
         if (gameOver == true) {
