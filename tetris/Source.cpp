@@ -100,7 +100,7 @@ int main() {
 
     Texture tTiles, tBackground;
     tTiles.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
-    tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/tiles.png");
+    tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/background.png");
     Sprite tile(tTiles), background(tBackground);
 
     int figureType = 0, numberOfTile, numberOfLine, direction = 0, x, y;
@@ -187,7 +187,8 @@ int main() {
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
             deleteLine(field, &lineIsFinished, &gameOver);
 
-            window.clear(Color::White);
+            window.clear();
+            window.draw(background);
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
                 tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
                 tile.setPosition(tileCoords[numberOfTile].x * tileSize, tileCoords[numberOfTile].y * tileSize);
@@ -208,7 +209,6 @@ int main() {
                     tileCoords[numberOfTile].y = 0;
                 }
             }
-
             window.display();
         }
 
