@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
+
 using namespace sf;
 
 const int fieldLenght = 20, fieldWidth = 10, tileSize = 18;
@@ -77,6 +78,24 @@ void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
 
                 currentCoords[numberOfTile] = previousCoords[numberOfTile];
             }
+
+            break;
+        }
+    }
+}
+
+void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], int field[fieldLenght][fieldWidth], int figure, bool *figureIsPlaced) {
+
+    int numberOfTile;
+
+    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+        if (currentCoords[numberOfTile].y >= fieldLenght || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
+            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
+                field[currentCoords[numberOfTile].y - 1][currentCoords[numberOfTile].x] = figure;
+            }
+
+            *figureIsPlaced = true;
 
             break;
         }
@@ -169,9 +188,11 @@ int main() {
                 }
             }
 
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+            collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
 
-                if (tileCoords[numberOfTile].y >= fieldLenght /* || field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] != 8*/) {
+            /*for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
+                if (tileCoords[numberOfTile].y >= fieldLenght || field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] != 8) {
                     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
                         field[tileCoords[numberOfTile].y][tileCoords[numberOfTile].x] = figureType;
@@ -181,7 +202,7 @@ int main() {
 
                     break;
                 }
-            }
+            }*/
 
             window.clear(Color::White);
 
@@ -192,9 +213,9 @@ int main() {
                 window.draw(tile);
             }
 
-            for (numberOfLine = 0; numberOfLine < fieldWidth; ++numberOfLine) {
+            for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
 
-                for (numberOfTile = 0; numberOfTile < fieldLenght; ++numberOfTile) {
+                for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
 
                     if (field[numberOfLine][numberOfTile] != 7) {
                         tile.setTextureRect(IntRect(field[numberOfLine][numberOfTile] * tileSize, 0, tileSize, tileSize));
