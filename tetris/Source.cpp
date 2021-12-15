@@ -67,12 +67,18 @@ void rotation(int figureType, int* rotationState, tilePosition currentCoords[4],
     }
 }
 
-void collision(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
+void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
+
     int numberOfTile;
 
     for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x > fieldWidth) {
-            currentCoords[numberOfTile] = previousCoords[numberOfTile];
+        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth) {
+            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+
+                currentCoords[numberOfTile] = previousCoords[numberOfTile];
+            }
+
+            break;
         }
     }
 }
@@ -151,7 +157,7 @@ int main() {
                 tileCoords[numberOfTile].x += direction;
             }
 
-            collision(tileCoords, previousCoords);
+            collisionX(tileCoords, previousCoords);
 
             direction = 0;
 
@@ -213,7 +219,5 @@ int main() {
 
         figureIsPlaced = false;
         }
-
-       
     return 0;
 }
