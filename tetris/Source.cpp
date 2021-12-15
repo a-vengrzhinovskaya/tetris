@@ -95,7 +95,7 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
 
             if (field[numberOfLine][numberOfTile] != 7) {
-                if (numberOfLine == 0) {
+                if (numberOfLine == 1) {
                     *gameOver = true;
 
                     return;
@@ -227,13 +227,7 @@ int main() {
 
             deleteLine(field, &lineIsFinished, &gameOver);
 
-            window.clear(Color::Black);
-
-            if (gameOver == true) {
-                gameIsOver.setTextureRect(IntRect(0, 0, fieldWidth * tileSize, fieldWidth * tileSize));
-                gameIsOver.setPosition(0, fieldLenght / 2 * fieldWidth * tileSize);
-                window.draw(gameIsOver);
-            }
+            window.clear(Color::White);
 
             for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
 
@@ -262,6 +256,12 @@ int main() {
                 }
             }
 
+            if (gameOver == true) {
+                gameIsOver.setTextureRect(IntRect(0, 0, fieldWidth * tileSize, fieldWidth * tileSize));
+                gameIsOver.setPosition(0, fieldLenght / 2 * fieldWidth * tileSize);
+                window.draw(gameIsOver);
+            }
+
             window.display();
         }
 
@@ -269,10 +269,8 @@ int main() {
                 delay -= 0.03;
         }
 
-        //if (gameOver != true) {
-            figureIsPlaced = false;
-            lineIsFinished = false;
-        //}
+        figureIsPlaced = false;
+        lineIsFinished = false;
     }
     return 0;
 }
