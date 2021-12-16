@@ -71,7 +71,7 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
     for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
             if (field[numberOfLine][numberOfTile] != 7) {
-                if (numberOfLine == 0 && field[fieldWidth - 1][numberOfTile] != 7) {
+                if (numberOfLine == 0) {
                     *gameOver = true;
                     return;
                 }
@@ -87,6 +87,7 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
                 }
             }
         }
+
         filledTilesCount = 0;
     }
 }
