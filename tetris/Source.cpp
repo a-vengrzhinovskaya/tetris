@@ -203,12 +203,7 @@ int main() {
                     }
                 }
             }
-            if (figureIsPlaced == true) {
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-                    tileCoords[numberOfTile].x = 0;
-                    tileCoords[numberOfTile].y = 0;
-                }
-            }
+
             window.display();
         }
 
