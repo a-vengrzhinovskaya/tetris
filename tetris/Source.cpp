@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
+#include <cstring>
 #include <fstream>
 
 using namespace sf;
@@ -134,6 +135,23 @@ int main() {
     tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/background.png");
     Sprite tile(tTiles), background(tBackground);
 
+    Font font;
+    font.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/fonts/karma_suture.ttf");
+
+    Text currentScore, highestScore, speed;
+    currentScore.setFont(font);
+    highestScore.setFont(font);
+    speed.setFont(font);
+    currentScore.setCharacterSize(20);
+    highestScore.setCharacterSize(20);
+    speed.setCharacterSize(15);
+    currentScore.setFillColor(Color::White);
+    highestScore.setFillColor(Color::White);
+    speed.setFillColor(Color::White);
+    currentScore.setPosition(0, 0);
+    highestScore.setPosition(0, 25);
+    speed.setPosition(350, 440);
+
     int figureType = 0, numberOfTile, numberOfLine, direction = 0, x, y, score = 0;
 
     Clock clock;
@@ -142,9 +160,11 @@ int main() {
 
     bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotation = false, nextFigure = true;
 
-    char highestScore;
+    string tCurrentScore, tHighestScore, tSpeed, record = "0";
 
     ifstream iScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
+    getline(iScore, record);
+    iScore.close();
 
     fieldFill(field);
 
@@ -174,14 +194,11 @@ int main() {
                 if (event.type == Event::KeyPressed) {
                     if (event.key.code == Keyboard::Up) {
                         rotation = true;
-                    }
-                    else if (event.key.code == Keyboard::Right) {
+                    } else if (event.key.code == Keyboard::Right) {
                         direction = 1;
-                    }
-                    else if (event.key.code == Keyboard::Left) {
+                    } else if (event.key.code == Keyboard::Left) {
                         direction = -1;
-                    }
-                    else if (event.key.code == Keyboard::Down) {
+                    } else if (event.key.code == Keyboard::Down) {
                         delay = 0.03;
                     }
                 }
@@ -211,19 +228,16 @@ int main() {
             if (timer >= delay) {
                 for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                     tileCoords[numberOfTile].y += 1;
-                    timer = 0;
                 }
+                timer = 0;
             }
             delay = tempDelay;
 
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
             deleteLine(field, &lineIsFinished, &gameOver, &score);
 
-            iScore.get(highestScore);
-            if (score > int(highestScore)) {
-                ofstream oScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
-                oScore << to_string(score);
-                oScore.close();
+            if (score > stoi(record)) {
+                record = to_string(score);
             }
 
             window.clear();
@@ -242,6 +256,15 @@ int main() {
                     }
                 }
             }
+            tCurrentScore = "Score: " + to_string(score);
+            tHighestScore = "Highest score: " + record;
+            tSpeed = "Speed: " + to_string(delay);
+            currentScore.setString(tCurrentScore);
+            window.draw(currentScore);
+            highestScore.setString(tHighestScore);
+            window.draw(highestScore);
+            speed.setString(tSpeed);
+            window.draw(speed);
 
             window.display();
         }
@@ -255,6 +278,8 @@ int main() {
 
             score = 0;
 
+            delay = 0.5;
+
             gameOver = false;
         }
 
@@ -263,7 +288,9 @@ int main() {
         nextFigure = true;
     }
 
-    iScore.close();
+    ofstream oScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
+    oScore << record;
+    oScore.close();
 
     return 0;
 }
