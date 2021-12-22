@@ -3,14 +3,14 @@
 
 using namespace sf;
 
-const int fieldLenght = 20, fieldWidth = 10, tileSize = 32;
-int field[fieldLenght][fieldWidth];
+const int fieldHeight = 15, fieldWidth = 15, tileSize = 32, tileAmount = 4;
+int field[fieldHeight][fieldWidth];
 
-void fieldFill(int field[fieldLenght][fieldWidth]) {
+void fieldFill(int field[fieldHeight][fieldWidth]) {
 
     int numberOfLine, numberOfRow;
 
-    for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+    for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
         for (numberOfRow = 0; numberOfRow < fieldWidth; ++numberOfRow) {
             field[numberOfLine][numberOfRow] = 7;
         }
@@ -21,9 +21,9 @@ struct tilePosition {
 
     int x, y;
 
-} tileCoords[4], previousCoords[4], axis;
+} tileCoords[tileAmount], previousCoords[tileAmount], axis;
 
-int localTileCoords[7][4] = {
+int localTileCoords[7][tileAmount] = {
     1,3,5,7,
     2,4,5,7,
     3,5,4,6,
@@ -33,13 +33,13 @@ int localTileCoords[7][4] = {
     2,3,4,5,
 };
 
-void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
+void collisionX(tilePosition currentCoords[tileAmount], tilePosition previousCoords[tileAmount]) {
 
     int numberOfTile;
 
-    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+    for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
         if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                 currentCoords[numberOfTile] = previousCoords[numberOfTile];
             }
             break;
@@ -47,28 +47,28 @@ void collisionX(tilePosition currentCoords[4], tilePosition previousCoords[4]) {
     }
 }
 
-void collisionY(tilePosition currentCoords[4], tilePosition previousCoords[4], int field[fieldLenght][fieldWidth], int figure, bool* figureIsPlaced) {
+void collisionY(tilePosition currentCoords[tileAmount], tilePosition previousCoords[tileAmount], int field[fieldHeight][fieldWidth], int figure, bool* figureIsPlaced) {
 
     int numberOfTile;
-    
-    for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
-        if (currentCoords[numberOfTile].y >= fieldLenght || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {  
+
+    for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+        if (currentCoords[numberOfTile].y >= fieldHeight || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
+            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                 field[currentCoords[numberOfTile].y - 1][currentCoords[numberOfTile].x] = figure;
             }
-            
+
             *figureIsPlaced = true;
-            
+
             break;
         }
     }
 }
 
-void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* gameOver) {
+void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* gameOver) {
 
     int numberOfLine, numberOfTile, lineIndex, tileIndex, filledTilesCount = 0;
-    
-    for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+
+    for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
             if (field[numberOfLine][numberOfTile] != 7) {
                 if (numberOfLine == 0) {
@@ -93,10 +93,10 @@ void deleteLine(int field[fieldLenght][fieldWidth], bool* lineIsFinished, bool* 
 }
 
 int main() {
-    
+
     srand(time(0));
-    
-    RenderWindow window(VideoMode(fieldWidth * tileSize, fieldLenght * tileSize), "Tetris");
+
+    RenderWindow window(VideoMode(fieldWidth * tileSize, fieldHeight * tileSize), "Tetris");
     window.setVerticalSyncEnabled(true);
 
     Texture tTiles, tBackground;
@@ -120,7 +120,7 @@ int main() {
 
             if (nextFigure == true) {
                 figureType = rand() % 7;
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+                for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
 
                     nextFigure = false;
 
@@ -156,7 +156,7 @@ int main() {
                 }
             }
 
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                 previousCoords[numberOfTile] = tileCoords[numberOfTile];
                 tileCoords[numberOfTile].x += direction;
             }
@@ -165,7 +165,7 @@ int main() {
 
             if (rotation == true) {
                 axis = tileCoords[1];
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+                for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                     x = tileCoords[numberOfTile].y - axis.y;
                     y = tileCoords[numberOfTile].x - axis.x;
 
@@ -178,7 +178,7 @@ int main() {
             rotation = false;
 
             if (timer >= delay) {
-                for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+                for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                     tileCoords[numberOfTile].y += 1;
                     timer = 0;
                 }
@@ -190,12 +190,12 @@ int main() {
 
             window.clear();
             window.draw(background);
-            for (numberOfTile = 0; numberOfTile < 4; ++numberOfTile) {
+            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
                 tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
                 tile.setPosition(tileCoords[numberOfTile].x * tileSize, tileCoords[numberOfTile].y * tileSize);
                 window.draw(tile);
             }
-            for (numberOfLine = 0; numberOfLine < fieldLenght; ++numberOfLine) {
+            for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
                 for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
                     if (field[numberOfLine][numberOfTile] != 7) {
                         tile.setTextureRect(IntRect(field[numberOfLine][numberOfTile] * tileSize, 0, tileSize, tileSize));
