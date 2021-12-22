@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
+#include <fstream>
 
 using namespace sf;
+using namespace std;
 
 const int fieldHeight = 15, fieldWidth = 15, tileSize = 32, tileAmount = 4;
 int field[fieldHeight][fieldWidth];
@@ -64,9 +66,9 @@ void collisionY(tilePosition currentCoords[tileAmount], tilePosition previousCoo
     }
 }
 
-void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* gameOver) {
+void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* gameOver, int* score) {
 
-    int numberOfLine, numberOfTile, lineIndex, tileIndex, filledTilesCount = 0;
+    int numberOfLine, numberOfTile, lineIndex, tileIndex, filledTilesCount = 0, finishedLineCount = 0;
 
     for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
@@ -81,10 +83,38 @@ void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* 
         }
         if (filledTilesCount == fieldWidth) {
             *lineIsFinished = true;
+
             for (lineIndex = numberOfLine; lineIndex > 0; --lineIndex) {
                 for (tileIndex = 0; tileIndex < fieldWidth; ++tileIndex) {
                     field[lineIndex][tileIndex] = field[lineIndex - 1][tileIndex];
                 }
+            }
+
+            ++finishedLineCount;
+        }
+
+        switch (finishedLineCount) {
+            case 1: {
+                *score += 40;
+
+                break;
+            }
+            case 2: {
+                *score += 100;
+
+                break;
+            }
+            case 3: {
+                *score += 300;
+
+                break;
+            }
+            case 4: {
+                *score += 1200;
+
+                break;
+            }
+            default: {
             }
         }
 
@@ -104,7 +134,7 @@ int main() {
     tBackground.loadFromFile("C:/Users/aveng/source/repos/Tetris/Tetris/images/background.png");
     Sprite tile(tTiles), background(tBackground);
 
-    int figureType = 0, numberOfTile, numberOfLine, direction = 0, x, y;
+    int figureType = 0, numberOfTile, numberOfLine, direction = 0, x, y, score = 0;
 
     Clock clock;
 
@@ -112,16 +142,17 @@ int main() {
 
     bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotation = false, nextFigure = true;
 
+    char highestScore;
+
+    ifstream iScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
+
     fieldFill(field);
 
     while (window.isOpen()) {
-
         while (figureIsPlaced == false) {
-
             if (nextFigure == true) {
                 figureType = rand() % 7;
                 for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
-
                     nextFigure = false;
 
                     tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
@@ -186,7 +217,14 @@ int main() {
             delay = tempDelay;
 
             collisionY(tileCoords, previousCoords, field, figureType, &figureIsPlaced);
-            deleteLine(field, &lineIsFinished, &gameOver);
+            deleteLine(field, &lineIsFinished, &gameOver, &score);
+
+            iScore.get(highestScore);
+            if (score > int(highestScore)) {
+                ofstream oScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
+                oScore << to_string(score);
+                oScore.close();
+            }
 
             window.clear();
             window.draw(background);
@@ -215,6 +253,8 @@ int main() {
         if (gameOver == true) {
             fieldFill(field);
 
+            score = 0;
+
             gameOver = false;
         }
 
@@ -222,5 +262,8 @@ int main() {
         lineIsFinished = false;
         nextFigure = true;
     }
+
+    iScore.close();
+
     return 0;
 }
