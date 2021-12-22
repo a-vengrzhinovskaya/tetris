@@ -95,28 +95,28 @@ void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* 
         }
 
         switch (finishedLineCount) {
-            case 1: {
-                *score += 40;
+        case 1: {
+            *score += 40;
 
-                break;
-            }
-            case 2: {
-                *score += 100;
+            break;
+        }
+        case 2: {
+            *score += 100;
 
-                break;
-            }
-            case 3: {
-                *score += 300;
+            break;
+        }
+        case 3: {
+            *score += 300;
 
-                break;
-            }
-            case 4: {
-                *score += 1200;
+            break;
+        }
+        case 4: {
+            *score += 1200;
 
-                break;
-            }
-            default: {
-            }
+            break;
+        }
+        default: {
+        }
         }
 
         filledTilesCount = 0;
@@ -160,7 +160,7 @@ int main() {
 
     bool figureIsPlaced = false, lineIsFinished = false, gameOver = false, rotation = false, nextFigure = true;
 
-    string tCurrentScore, tHighestScore, tSpeed, record = "0";
+    string tCurrentScore, tHighestScore, tSpeed, record;
 
     ifstream iScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
     getline(iScore, record);
@@ -194,11 +194,14 @@ int main() {
                 if (event.type == Event::KeyPressed) {
                     if (event.key.code == Keyboard::Up) {
                         rotation = true;
-                    } else if (event.key.code == Keyboard::Right) {
+                    }
+                    else if (event.key.code == Keyboard::Right) {
                         direction = 1;
-                    } else if (event.key.code == Keyboard::Left) {
+                    }
+                    else if (event.key.code == Keyboard::Left) {
                         direction = -1;
-                    } else if (event.key.code == Keyboard::Down) {
+                    }
+                    else if (event.key.code == Keyboard::Down) {
                         delay = 0.03;
                     }
                 }
@@ -286,11 +289,11 @@ int main() {
         figureIsPlaced = false;
         lineIsFinished = false;
         nextFigure = true;
-    }
 
-    ofstream oScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
-    oScore << record;
-    oScore.close();
+        ofstream oScore("C:/Users/aveng/source/repos/Tetris/Tetris/score.txt");
+        oScore << record;
+        oScore.close();
+    }
 
     return 0;
 }
