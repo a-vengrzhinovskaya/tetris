@@ -6,7 +6,7 @@
 using namespace sf;
 using namespace std;
 
-const int fieldHeight = 15, fieldWidth = 15, tileSize = 32, tileAmount = 4;
+const int fieldHeight = 15, fieldWidth = 15, tileSize = 32, tileAmount = 5, figureAmount = 8, addCoord = 10000;
 int field[fieldHeight][fieldWidth];
 
 void fieldFill(int field[fieldHeight][fieldWidth]) {
@@ -15,7 +15,7 @@ void fieldFill(int field[fieldHeight][fieldWidth]) {
 
     for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
         for (numberOfRow = 0; numberOfRow < fieldWidth; ++numberOfRow) {
-            field[numberOfLine][numberOfRow] = 7;
+            field[numberOfLine][numberOfRow] = figureAmount;
         }
     }
 }
@@ -26,23 +26,31 @@ struct tilePosition {
 
 } tileCoords[tileAmount], previousCoords[tileAmount], axis;
 
-int localTileCoords[7][tileAmount] = {
-    1,3,5,7,
-    2,4,5,7,
-    3,5,4,6,
-    3,5,4,7,
-    2,3,5,7,
-    3,5,7,6,
-    2,3,4,5,
+int localTileCoords[figureAmount][tileAmount] = {
+    1,3,5,7,0,
+    2,4,5,7,0,
+    3,5,4,6,0,
+    3,5,4,7,0,
+    2,3,5,7,0,
+    3,5,7,6,0,
+    2,3,4,5,0,
+    3,5,7,6,2
+
 };
 
 void collisionX(tilePosition currentCoords[tileAmount], tilePosition previousCoords[tileAmount]) {
 
-    int numberOfTile;
+    int numberOfTile, neededTileAmount;
 
-    for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
-        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
-            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+    if (tileCoords[4].x == addCoord) {
+        neededTileAmount = tileAmount - 1;
+    } else {
+        neededTileAmount = tileAmount;
+    }
+
+    for (numberOfTile = 0; numberOfTile < neededTileAmount; ++numberOfTile) {
+        if (currentCoords[numberOfTile].x < 0 || currentCoords[numberOfTile].x >= fieldWidth || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != figureAmount) {
+            for (numberOfTile = 0; numberOfTile < neededTileAmount; ++numberOfTile) {
                 currentCoords[numberOfTile] = previousCoords[numberOfTile];
             }
             break;
@@ -52,11 +60,21 @@ void collisionX(tilePosition currentCoords[tileAmount], tilePosition previousCoo
 
 void collisionY(tilePosition currentCoords[tileAmount], tilePosition previousCoords[tileAmount], int field[fieldHeight][fieldWidth], int figure, bool* figureIsPlaced) {
 
-    int numberOfTile;
+    int numberOfTile, neededTileAmount;
 
-    for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
-        if (currentCoords[numberOfTile].y >= fieldHeight || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != 7) {
-            for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+    if (tileCoords[4].x == addCoord) {
+        neededTileAmount = tileAmount - 1;
+    } else {
+        neededTileAmount = tileAmount;
+    }
+
+    for (numberOfTile = 0; numberOfTile < neededTileAmount; ++numberOfTile) {
+        if (tileCoords[numberOfTile].x == addCoord) {
+            break;
+        }
+
+        if (currentCoords[numberOfTile].y >= fieldHeight || field[currentCoords[numberOfTile].y][currentCoords[numberOfTile].x] != figureAmount) {
+            for (numberOfTile = 0; numberOfTile < neededTileAmount; ++numberOfTile) {
                 field[currentCoords[numberOfTile].y - 1][currentCoords[numberOfTile].x] = figure;
             }
 
@@ -73,7 +91,7 @@ void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* 
 
     for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
         for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
-            if (field[numberOfLine][numberOfTile] != 7) {
+            if (field[numberOfLine][numberOfTile] != figureAmount) {
                 if (numberOfLine == 0) {
                     *gameOver = true;
                     return;
@@ -94,7 +112,10 @@ void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* 
             ++finishedLineCount;
         }
 
-        switch (finishedLineCount) {
+        filledTilesCount = 0;
+    }
+
+    switch (finishedLineCount) {
         case 1: {
             *score += 40;
 
@@ -117,9 +138,6 @@ void deleteLine(int field[fieldHeight][fieldWidth], bool* lineIsFinished, bool* 
         }
         default: {
         }
-        }
-
-        filledTilesCount = 0;
     }
 }
 
@@ -171,12 +189,24 @@ int main() {
     while (window.isOpen()) {
         while (figureIsPlaced == false) {
             if (nextFigure == true) {
-                figureType = rand() % 7;
-                for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
-                    nextFigure = false;
+                figureType = rand() % figureAmount;
+                if (figureType == 7) {
+                    for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+                        nextFigure = false;
 
-                    tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
-                    tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
+                        tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
+                        tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
+                    }
+                } else {
+                    for (numberOfTile = 0; numberOfTile < tileAmount - 1; ++numberOfTile) {
+                        nextFigure = false;
+
+                        tileCoords[numberOfTile].x = localTileCoords[figureType][numberOfTile] % 2;
+                        tileCoords[numberOfTile].y = localTileCoords[figureType][numberOfTile] / 2;
+                    }
+
+                    tileCoords[4].x = addCoord;
+                    tileCoords[4].y = addCoord;
                 }
             }
 
@@ -208,6 +238,10 @@ int main() {
             }
 
             for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+                if (tileCoords[numberOfTile].x == addCoord) {
+                    break;
+                }
+
                 previousCoords[numberOfTile] = tileCoords[numberOfTile];
                 tileCoords[numberOfTile].x += direction;
             }
@@ -217,6 +251,10 @@ int main() {
             if (rotation == true) {
                 axis = tileCoords[1];
                 for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+                    if (tileCoords[numberOfTile].x == addCoord) {
+                        break;
+                    }
+
                     x = tileCoords[numberOfTile].y - axis.y;
                     y = tileCoords[numberOfTile].x - axis.x;
 
@@ -230,6 +268,10 @@ int main() {
 
             if (timer >= delay) {
                 for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+                    if (tileCoords[numberOfTile].x == addCoord) {
+                        break;
+                    }
+
                     tileCoords[numberOfTile].y += 1;
                 }
                 timer = 0;
@@ -246,13 +288,17 @@ int main() {
             window.clear();
             window.draw(background);
             for (numberOfTile = 0; numberOfTile < tileAmount; ++numberOfTile) {
+                if (tileCoords[numberOfTile].x == addCoord) {
+                    break;
+                }
+
                 tile.setTextureRect(IntRect(figureType * tileSize, 0, tileSize, tileSize));
                 tile.setPosition(tileCoords[numberOfTile].x * tileSize, tileCoords[numberOfTile].y * tileSize);
                 window.draw(tile);
             }
             for (numberOfLine = 0; numberOfLine < fieldHeight; ++numberOfLine) {
                 for (numberOfTile = 0; numberOfTile < fieldWidth; ++numberOfTile) {
-                    if (field[numberOfLine][numberOfTile] != 7) {
+                    if (field[numberOfLine][numberOfTile] != figureAmount) {
                         tile.setTextureRect(IntRect(field[numberOfLine][numberOfTile] * tileSize, 0, tileSize, tileSize));
                         tile.setPosition(numberOfTile * tileSize, numberOfLine * tileSize);
                         window.draw(tile);
